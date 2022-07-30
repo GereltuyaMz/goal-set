@@ -1,40 +1,38 @@
 const asyncHandler = require('express-async-handler');
 const Goal = require('../models/goalModel');
 const User = require('../models/userModel');
+const { getGoals, setGoal, updateGoal, deleteGoal } = require('../queries/goalService');
 
 // @desc  Get goal
 // @route GET /api/goals
 // @access private
-const getGoals = asyncHandler(async (req, res) => {
-  const goals = await Goal.find({ user: req.user.id });
+const getGoalsService = asyncHandler(async (req, res) => {
+  const goals = await getGoals(req);
   res.status(200).json(goals);
-})
+});
 
 // @desc  Create goal
 // @route POST /api/goals
 // @access private
-const setGoal = asyncHandler(async (req, res) => {
+const setGoalService = asyncHandler(async (req, res) => {
   if (!req.body.text) {
-    res.status(400)
-    throw new Error('add text field')
+    res.status(400);
+    throw new Error('add text field');
   }
 
-  const goal = await Goal.create({
-    text: req.body.text,
-    user: req.user.id
-  })
+  const goal = await setGoal(req, res);
 
   res.status(200).json(goal);
-})
+});
 
 // @desc  Update goal
 // @route PUT /api/goals/:id
 // @access private
-const updateGoal = asyncHandler(async (req, res) => {
+const updateGoalService = asyncHandler(async (req, res) => {
   const goal = await Goal.findById(req.params.id);
   if (!goal) {
     res.status(400);
-    throw new Error('Goal not found')
+    throw new Error('Goal not found');
   }
 
   const user = await User.findById(req.user.id);
@@ -50,20 +48,18 @@ const updateGoal = asyncHandler(async (req, res) => {
     throw new Error('User not authorized');
   }
 
-  const updatedGoal = await Goal.findByIdAndUpdate(req.params.id, req.body, {
-    new: true
-  });
+  const updatedGoal = await updateGoal(req, res);
   res.status(200).json(updatedGoal);
-})
+});
 
 // @desc  Delete goal
 // @route DELETE /api/goals/:id
 // @access private
-const deleteGoal = asyncHandler(async (req, res) => {
+const deleteGoalService = asyncHandler(async (req, res) => {
   const goal = await Goal.findById(req.params.id);
   if (!goal) {
-    res.status(400)
-    throw new Error('Goal not found')
+    res.status(400);
+    throw new Error('Goal not found');
   }
 
   const user = await User.findById(req.user.id);
@@ -78,15 +74,14 @@ const deleteGoal = asyncHandler(async (req, res) => {
     res.status(401);
     throw new Error('User not authorized');
   }
-  
-  await goal.remove();
 
-  res.status(200).json({ id: req.params.id });
-})
+  const deletedGoal = await deleteGoal(req, res);
+  res.status(200).json(deletedGoal);
+});
 
 module.exports = {
-  getGoals,
-  setGoal,
-  updateGoal,
-  deleteGoal
-}
+  getGoalsService,
+  setGoalService,
+  updateGoalService,
+  deleteGoalService,
+};

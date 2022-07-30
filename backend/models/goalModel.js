@@ -1,17 +1,20 @@
 const mongoose = require('mongoose');
 
-const goalSchema = mongoose.Schema({
-  user: {
-    type: mongoose.Schema.Types.ObjectId,
-    required: true,
-    ref: 'User'
+const goalSchema = mongoose.Schema(
+  {
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      ref: 'User',
+    },
+    text: {
+      type: String,
+      required: [true, 'Add text'],
+    },
   },
-  text: {
-    type: String,
-    required: [true, 'Add text']
+  {
+    timestamps: true,
   }
-}, {
-  timestamps: true,
-})
+);
 
 module.exports = mongoose.model('Goal', goalSchema);
